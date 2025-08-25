@@ -122,23 +122,27 @@
   <h1 id="title" class="drop-text text-center px-4 mb-6"></h1>
 
   <!-- 🔲 3D Rotating Button -->
-  <a id="explore-btn" class="btn-3d">
+  <a id="explore-btn" href="card.html" class="btn-3d">
     <span>Explore</span>
     <span>Explore</span>
     <span>Explore</span>
     <span>Explore</span>
   </a>
 
-  <!-- Input + Search Button -->
-  <div id="search-container" class="hidden flex items-center gap-2 mt-6">
-    <input type="text" id="city-input" placeholder="Please enter your city name"
-      class="p-3 w-64 rounded-lg border-2 border-cyan-400 bg-transparent text-white placeholder-gray-300 outline-none shadow-lg">
-    <button id="search-btn" class="px-4 py-3 bg-cyan-500 text-white rounded-lg shadow-lg hover:bg-cyan-600">
-      <span role="img" aria-label="Search">🔍</span>
-    </button>
-  </div>
-
   <script>
+    // Central configuration for animations
+    const effectsConfig = {
+      snow: {
+        creationInterval: 200, // Time in ms to create a new snowflake
+        lifespan: 10000,       // Time in ms before a snowflake is removed
+      },
+      rain: {
+        creationInterval: 100,
+        lifespan: 2000,
+      },
+      textDropDelay: 0.1, // Delay in seconds between each character drop
+    };
+
     // ❄️ Snow Generator
     function createSnowflakes() {
       const snowflake = document.createElement("div");
@@ -153,21 +157,21 @@
 
       // For better performance on complex pages, consider using a pool of
       // reusable elements with requestAnimationFrame instead of creating/destroying with timers.
-      setTimeout(() => { snowflake.remove(); }, 10000);
+      setTimeout(() => { snowflake.remove(); }, effectsConfig.snow.lifespan);
     }
-    setInterval(createSnowflakes, 200);
+    setInterval(createSnowflakes, effectsConfig.snow.creationInterval);
 
     // 🌧️ Rain Generator
     function createRaindrops() {
       const drop = document.createElement("div");
       drop.classList.add("raindrop");
       drop.style.left = Math.random() * window.innerWidth + "px";
-      drop.style.animationDuration = (Math.random() * 1 + 0.5) + "s";
+      drop.style.animationDuration = (Math.random() * 1 + 0.5) + "s"; // Duration is dynamic, so it stays
 
       document.body.appendChild(drop);
-      setTimeout(() => { drop.remove(); }, 2000);
+      setTimeout(() => { drop.remove(); }, effectsConfig.rain.lifespan);
     }
-    setInterval(createRaindrops, 100);
+    setInterval(createRaindrops, effectsConfig.rain.creationInterval);
 
     // ⬇️ Dropping Text Effect
     const text = "Welcome to my Weather App - Assignment Given By SMIT as Project";
@@ -175,39 +179,8 @@
     text.split("").forEach((char, i) => {
       let span = document.createElement("span");
       span.textContent = char;
-      span.style.animationDelay = `${i * 0.1}s`;
+      span.style.animationDelay = `${i * effectsConfig.textDropDelay}s`;
       title.appendChild(span);
-    });
-
-    // 🚀 Explore Button -> Show Input
-    const exploreBtn = document.getElementById("explore-btn");
-    const searchContainer = document.getElementById("search-container");
-    const cityInput = document.getElementById("city-input");
-    const searchBtn = document.getElementById("search-btn");
-
-    exploreBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      exploreBtn.style.display = "none"; 
-      searchContainer.classList.remove("hidden");
-      cityInput.focus();
-    });
-
-    // Function to redirect to card.html with city
-    function goToWeather() {
-      const city = cityInput.value.trim();
-      if (city) {
-        window.location.href = `card.html?city=${encodeURIComponent(city)}`;
-      }
-    }
-
-    // Search button click
-    searchBtn.addEventListener("click", goToWeather);
-
-    // Enter key press
-    cityInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        goToWeather();
-      }
     });
   </script>
 </body>
