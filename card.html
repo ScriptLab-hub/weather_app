@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Card</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: url('assets/default.jpg') no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background 0.5s ease-in-out;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="text-white">
+
+  <!-- Header -->
+  <header class="w-full flex justify-between items-center p-4">
+    <!-- Date & Time -->
+    <div id="datetime" class="text-lg font-semibold"></div>
+
+    <!-- City Search -->
+    <div class="flex items-center space-x-2">
+      <input id="city-input" type="text" placeholder="Enter city..."
+             class="px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-yellow-400">
+      <button id="search-btn"
+              class="px-4 py-2 bg-yellow-400 text-black rounded-lg font-semibold hover:bg-yellow-300">
+        Search
+      </button>
+    </div>
+  </header>
+
+  <!-- Weather Card -->
+  <main class="flex-grow flex items-center justify-center">
+    <div class="glass w-80 p-6 text-white shadow-xl">
+      <h2 id="location" class="text-lg font-medium">Loading...</h2>
+
+      <!-- Temp & Icon -->
+      <div class="flex justify-between items-center mt-3">
+        <div>
+          <h1 id="temperature" class="text-5xl font-bold">--°C</h1>
+          <p id="range" class="text-sm opacity-80">H:--° L:--°</p>
+        </div>
+        <img id="weather-icon" src="assets/default.png" class="w-14 h-14" alt="Weather Icon">
+      </div>
+
+      <!-- Extra Details -->
+      <div class="mt-5 space-y-3">
+        <div class="glass p-3 rounded-lg flex justify-between">
+          <p class="flex items-center gap-2">🌬️ Wind</p>
+          <span id="wind">-- km/h</span>
+        </div>
+        <div class="glass p-3 rounded-lg flex justify-between">
+          <p class="flex items-center gap-2">🌧️ Rain</p>
+          <span id="rain">--%</span>
+        </div>
+        <div class="glass p-3 rounded-lg flex justify-between">
+          <p class="flex items-center gap-2">💧 Humidity</p>
+          <span id="humidity">--%</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full text-center py-4 bg-black/40 text-sm">
+    Made by <span class="font-semibold">Kamran Zafar</span> — SMIT Assignment
+  </footer>
+
+  <script>
+    // Weather image assets
+    const weatherAssets = {
+      Clear: { icon: "assets/sunny.png", bg: "assets/clear.jpg" },
+      Clouds: { icon: "assets/cloudy.png", bg: "assets/cloud.jpg" },
+      Rain: { icon: "assets/cloudWithRain.png", bg: "assets/rainy-bg.jpg" },
+      Snow: { icon: "assets/snow.png", bg: "assets/snow-bg.jpg" },
+      Default: { icon: "assets/default.png", bg: "assets/default.jpg" }
+    };
+
+    // Fetch weather data
+    async function fetchWeather(city = "London") {
+      const apiKey = "9874e9fa94edcec9862ec44b2926e61a"; 
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod !== 200) {
+          document.getElementById("location").textContent = "Location not found";
+          return;
+        }
+
+        const temp = Math.round(data.main.temp);
+        const tempMax = Math.round(data.main.temp_max);
+        const tempMin = Math.round(data.main.temp_min);
+        const wind = data.wind?.speed ?? "--";
+        const humidity = data.main?.humidity ?? "--";
+        const rain = data.rain?.["1h"] ?? 0;
+        const weather = data.weather[0]?.main ?? "Default";
+
+        // Update UI
+        document.getElementById("location").textContent = `${data.name}, ${data.sys.country}`;
+        document.getElementById("temperature").textContent = `${temp}°C`;
+        document.getElementById("range").textContent = `H:${tempMax}° L:${tempMin}°`;
+        document.getElementById("wind").textContent = `${wind} km/h`;
+        document.getElementById("humidity").textContent = `${humidity}%`;
+        document.getElementById("rain").textContent = `${rain}%`;
+
+        // Set assets
+        const asset = weatherAssets[weather] || weatherAssets.Default;
+        document.getElementById("weather-icon").src = asset.icon;
+        document.body.style.background = `url('${asset.bg}') no-repeat center center/cover`;
+
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+        document.getElementById("location").textContent = "Weather fetch failed";
+      }
+    }
+
+    // Search button event
+    document.getElementById("search-btn").addEventListener("click", () => {
+      const city = document.getElementById("city-input").value;
+      if (city) fetchWeather(city);
+    });
+
+    // Enter key trigger
+    document.getElementById("city-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        document.getElementById("search-btn").click();
+      }
+    });
+
+    // Date & Time Update
+    function updateDateTime() {
+      const now = new Date();
+      const options = {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: 'numeric', second: 'numeric',
+        hour12: true
+      };
+      document.getElementById('datetime').textContent = now.toLocaleString('en-US', options);
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Default load
+    fetchWeather("London");
+  </script>
+</body>
+</html>
