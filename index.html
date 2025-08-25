@@ -18,6 +18,11 @@
       background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
       overflow: hidden;
       color: white;
+      font-family: sans-serif; /* Set a readable default font */
+    }
+
+    /* Apply script font only to the main heading */
+    h1.drop-text {
       font-family: 'Dancing Script', cursive;
     }
 
@@ -129,7 +134,7 @@
     <input type="text" id="city-input" placeholder="Please enter your city name"
       class="p-3 w-64 rounded-lg border-2 border-cyan-400 bg-transparent text-white placeholder-gray-300 outline-none shadow-lg">
     <button id="search-btn" class="px-4 py-3 bg-cyan-500 text-white rounded-lg shadow-lg hover:bg-cyan-600">
-      🔍
+      <span role="img" aria-label="Search">🔍</span>
     </button>
   </div>
 
@@ -145,6 +150,9 @@
       snowflake.style.animationDuration = (Math.random() * 5 + 5) + "s";
 
       document.body.appendChild(snowflake);
+
+      // For better performance on complex pages, consider using a pool of
+      // reusable elements with requestAnimationFrame instead of creating/destroying with timers.
       setTimeout(() => { snowflake.remove(); }, 10000);
     }
     setInterval(createSnowflakes, 200);
